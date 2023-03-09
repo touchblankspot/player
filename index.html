@@ -49,7 +49,7 @@
             const videoId = videoIds[innerIndex]
             if(videoId != ''){
                 console.log(outerIndex +" "+ innerIndex +" "+ videoIds[innerIndex])
-                const video_url = "https://www.youtube.com/embed/"+videoId+"?&autoplay=1&loop=1&mute=1&enablejsapi=1&playlist="+videoId
+                const video_url = "https://www.youtube.com/embed/"+videoId+"?&autoplay=1&loop=1&mute=1&enablejsapi=1&playsinline=1&playlist="+videoId
                 $('<iframe />', {
                     name: 'frame_'+innerIndex,
                     id: 'idFrame_'+innerIndex,
