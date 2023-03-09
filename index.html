@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+</head>
+<body>
+
+</body>
+<script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.21/jquery.csv.min.js" integrity="sha512-Y8iWYJDo6HiTo5xtml1g4QqHtl/PO1w+dmUpQfQSOTqKNsMhExfyPN2ncNAe9JuJUSKzwK/b6oaNPop4MXzkwg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script type="text/javascript">
+    const height = "190px";
+    const width = "220px";
+    const maxFrame = 30;
+    const allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+    let strWindowFeatures = "location=yes,height=470,width=1100,scrollbars=yes,status=yes";
+    const left_shift_index = 100;
+    const top_shift_index = 100;
+    let videoIds
+    $.ajax({
+		url: 'sample.txt'
+        type: 'get',
+        async: false,
+        success: function(html) {
+            videoIds = html.split(/\r?\n/);
+        }
+    });
+    console.log(videoIds)
+    let videoIdsLength = videoIds.length
+    let loopCount = (videoIdsLength / maxFrame).toFixed(0)
+    if ((videoIdsLength / maxFrame).toFixed(0) > 0){
+        loopCount = parseInt(loopCount) +1;
+    }
+    for(let outerIndex = 0; outerIndex < loopCount; outerIndex ++) {
+        let innerIndexLimit = maxFrame * (outerIndex + 1)
+        jQuery('<div>', {
+            id: 'temp_data_'+outerIndex
+        }).appendTo('body');
+
+        $("#temp_data_"+outerIndex).css({
+            display: "none",
+            visibility: "hidden"
+        });
+        for(let innerIndex = outerIndex * maxFrame;
+            innerIndex < innerIndexLimit && innerIndex < videoIdsLength;
+            innerIndex ++) {
+            const videoId = videoIds[innerIndex]
+            if(videoId != ''){
+                console.log(outerIndex +" "+ innerIndex +" "+ videoIds[innerIndex])
+                const video_url = "https://www.youtube.com/embed/"+videoId+"?&autoplay=1&loop=1&mute=1&enablejsapi=1&playlist="+videoId
+                $('<iframe />', {
+                    name: 'frame_'+innerIndex,
+                    id: 'idFrame_'+innerIndex,
+                    width: height,
+                    height: width,
+                    src: video_url,
+                    allow: allow,
+                    allowFullscreen: allow
+                }).appendTo($("#temp_data_"+outerIndex))
+            }
+        }
+        let x = window.open('', '_blank',
+            (strWindowFeatures+",left="+(outerIndex*left_shift_index)+",top="+(outerIndex*top_shift_index)));
+        const window_content = $("#temp_data_"+outerIndex).html();
+        if($.trim(window_content) != ''){
+            x.document.body.innerHTML = window_content;
+            x.focus();
+        }else{
+            x.close();
+        }
+        $("#temp_data_"+outerIndex).remove();
+    }
+</script>
+</html>
