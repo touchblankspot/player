@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Count</title>
+</head>
+<body>
+
+</body>
+<script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+<script type="text/javascript">
+    const height = 370;
+    const width = 600;
+    const allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+    let strWindowFeatures = "location=yes,height=470,width=900,scrollbars=yes,status=yes";
+    const left_shift_index = 50;
+    const top_shift_index = 100;
+    const delay = ms => new Promise(res => setTimeout(res, ms));
+    let videoIds;
+    const childJsText =
+        "setTimeout(function() {\n" +
+        "            window.close()\n" +
+        "        }, 60000);";
+    $.ajax({
+        url: 'sample.txt',
+        type: 'get',
+        async: false,
+        success: function(html) {
+            videoIds = html.split(/\r?\n/);
+        }
+    });
+
+
+    $(document).ready(async function () {
+        let videoIdsLength = videoIds.length
+        while(true){
+            for (let index = 0; index < videoIdsLength; index++) {
+                jQuery('<div>', {
+                    id: 'temp_data_' + index
+                }).appendTo('body');
+
+                $("#temp_data_" + index).css({
+                    display: "none",
+                    visibility: "hidden"
+                });
+                const videoId = videoIds[index];
+                const video_url = "https://www.youtube.com/embed/" + videoId + "?&autoplay=1&loop=1&mute=1&enablejsapi=1&playsinline=1&playlist=" + videoId
+                $('<iframe />', {
+                    name: 'frame_' + index,
+                    id: 'idFrame_' + index,
+                    width: 600,
+                    height: 370,
+                    src: video_url,
+                    allow: allow,
+                    allowFullscreen: allow
+                }).appendTo($("#temp_data_" + index))
+                console.log("Opening window with index "+index + " and videoId "+videoId);
+                let currentX = (index % 2 === 0) ? 100  : 200;
+                let currentY = (index % 2 === 0) ? 100  : 200;
+                currentY = (currentY > width ? width : currentY);
+                let x = window.open('', '', (strWindowFeatures + ",left=" + currentX + ",top=" + currentY));
+                const window_content = $("#temp_data_" + index).html();
+                if ($.trim(window_content) != '') {
+                    x.document.body.innerHTML = window_content;
+                    let js = document.createElement('script');
+                    js.setAttribute('type', 'text/javascript');
+                    x.document.body.appendChild(js);
+                    x.document.scripts.item(0).text = childJsText;
+                    x.focus();
+                } else {
+                    x.close();
+                }
+                $("#temp_data_" + index).remove();
+                await delay(30000);
+                console.log("Waited 30s");
+            }
+            await delay(20000);
+            console.log("Waited 40s");
+        }
+    });
+
+</script>
+</html>
